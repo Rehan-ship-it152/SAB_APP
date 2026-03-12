@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-import datetime # Maine ise simple kar diya hai
+import datetime
 import gspread
 from google.oauth2.service_account import Credentials
 
@@ -24,10 +24,10 @@ with st.form("entry_form", clear_on_submit=True):
     
     col_d1, col_d2 = st.columns(2)
     with col_d1:
-        start_date = st.date_input("START DATE", value=datetime.datetime.now())
+        start_date = st.date_input("START DATE", value=datetime.date.today())
         start_time = st.time_input("START TIME", value=datetime.datetime.now().time())
     with col_d2:
-        end_date = st.date_input("END DATE", value=datetime.datetime.now())
+        end_date = st.date_input("END DATE", value=datetime.date.today())
         end_time = st.time_input("END TIME", value=datetime.datetime.now().time())
     
     col_e1, col_e2 = st.columns(2)
@@ -44,8 +44,7 @@ with st.form("entry_form", clear_on_submit=True):
     if submitted:
         if tailor_name and style_no:
             try:
-                # --- AUTO CALCULATION LOGIC ---
-                # Start aur End ko combine karke calculation
+                # --- CALCULATION AND FORMATTING ---
                 dt1 = datetime.datetime.combine(start_date, start_time)
                 dt2 = datetime.datetime.combine(end_date, end_time)
                 
@@ -55,27 +54,30 @@ with st.form("entry_form", clear_on_submit=True):
                 if total_minutes < 0:
                     total_minutes = 0
 
+                # Time ko sundar banane ke liye (Sirf 17:27 dikhega)
+                clean_start_time = start_time.strftime("%H:%M")
+                clean_end_time = end_time.strftime("%H:%M")
+
                 row = [
                     style_no,
                     str(start_date),
-                    str(start_time),
+                    clean_start_time, # Ab time saaf aayega
                     tailor_name,
                     str(end_date),
-                    str(end_time),
-                    hold_time,
-                    loss_time,
-                    overtime,
+                    clean_end_time,   # Ab time saaf aayega
+                    int(hold_time),
+                    int(loss_time),
+                    int(overtime),
                     alt_style,
-                    alt_time,
-                    total_minutes
+                    int(alt_time),
+                    int(total_minutes) # Ye pakka Number ban kar jayega
                 ]
                 
                 sheet.append_row(row)
-                st.success(f"Bhai, Data save ho gaya! Total Time: {total_minutes} minutes ✅")
+                st.success(f"Bhai, Data save ho gaya! Total Time: {total_minutes} min ✅")
                 st.balloons()
             except Exception as e:
-                st.error(f"Data bhejne mein galti hui: {e}")
+                st.error(f"Error: {e}")
         else:
             st.warning("Bhai, Tailor Name aur Style No bharo!")
-
 
