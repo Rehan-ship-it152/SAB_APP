@@ -66,6 +66,7 @@ with st.form("entry_form", clear_on_submit=True):
                     overtime,
                     alt_style,
                     alt_time,
+                    total_minutes  # Ye raha automatic calculation
                 ]
                 sheet.append_row(row)
                 st.success("Bhai, saara data save ho gaya! ✅")
@@ -74,4 +75,5 @@ with st.form("entry_form", clear_on_submit=True):
                 st.error(f"Data bhejne mein galti hui: {e}")
         else:
             st.warning("Bhai, Tailor Name aur Style No toh likho!")
+
 
