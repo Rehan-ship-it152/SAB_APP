@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from datetime import datetime, combine
+import datetime # Maine ise simple kar diya hai
 import gspread
 from google.oauth2.service_account import Credentials
 
@@ -24,11 +24,11 @@ with st.form("entry_form", clear_on_submit=True):
     
     col_d1, col_d2 = st.columns(2)
     with col_d1:
-        start_date = st.date_input("START DATE", value=datetime.now())
-        start_time = st.time_input("START TIME", value=datetime.now().time())
+        start_date = st.date_input("START DATE", value=datetime.datetime.now())
+        start_time = st.time_input("START TIME", value=datetime.datetime.now().time())
     with col_d2:
-        end_date = st.date_input("END DATE", value=datetime.now())
-        end_time = st.time_input("END TIME", value=datetime.now().time())
+        end_date = st.date_input("END DATE", value=datetime.datetime.now())
+        end_time = st.time_input("END TIME", value=datetime.datetime.now().time())
     
     col_e1, col_e2 = st.columns(2)
     with col_e1:
@@ -45,19 +45,16 @@ with st.form("entry_form", clear_on_submit=True):
         if tailor_name and style_no:
             try:
                 # --- AUTO CALCULATION LOGIC ---
-                # Start aur End ko combine karke full time nikalna
-                dt1 = combine(start_date, start_time)
-                dt2 = combine(end_date, end_time)
+                # Start aur End ko combine karke calculation
+                dt1 = datetime.datetime.combine(start_date, start_time)
+                dt2 = datetime.datetime.combine(end_date, end_time)
                 
-                # Kul minutes nikalna
                 duration = dt2 - dt1
                 total_minutes = int(duration.total_seconds() / 60)
                 
-                # Agar koi minus mein time aa jaye (galti se) toh use 0 dikhana
                 if total_minutes < 0:
                     total_minutes = 0
 
-                # Data row taiyaar karna
                 row = [
                     style_no,
                     str(start_date),
@@ -70,7 +67,7 @@ with st.form("entry_form", clear_on_submit=True):
                     overtime,
                     alt_style,
                     alt_time,
-                    total_minutes  # Ye raha automatic calculation
+                    total_minutes
                 ]
                 
                 sheet.append_row(row)
