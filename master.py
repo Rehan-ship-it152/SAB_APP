@@ -13,21 +13,33 @@ try:
 except Exception as e:
     st.error(f"Sheet error: {e}")
     
-# --- LOGO SECTION ---
-# Agar aapke paas logo ka link hai toh niche "LINK_YAHAN_DALO" ki jagah daal dein
-# Agar nahi hai, toh is line ke shuru mein # laga kar ise band kar dein
-st.image("https://via.placeholder.com/800x150.png?text=SABPAM+EXPORTS+LOGO", use_container_width=True)
-
-# --- DESIGNER TITLE SECTION ---
+# --- 1. BACKGROUND & STYLE (Isse wo '0' aur folder icon hat jayega) ---
 st.markdown("""
-    <div style='text-align: center; background-color: #ffffff; padding: 10px; border-radius: 5px;'>
-        <h1 style='color: #1E3A8A; font-family: "Times New Roman", Times, serif; font-size: 45px; margin-bottom: 0; letter-spacing: 2px;'>
+    <style>
+    /* Poori screen ka background */
+    .stApp {
+        background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+    }
+    /* Form ko ek safed box banane ke liye */
+    [data-testid="stForm"] {
+        background-color: #ffffff !important;
+        padding: 30px !important;
+        border-radius: 20px !important;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.1) !important;
+        border: 1px solid #e0e0e0 !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+# --- 2. DESIGNER TITLE (Ab koi error nahi aayega) ---
+st.markdown("""
+    <div style='text-align: center; padding: 20px; background-color: white; border-radius: 15px; border-bottom: 5px solid #1E3A8A;'>
+        <h1 style='color: #1E3A8A; font-family: "Georgia", serif; font-size: 42px; margin-bottom: 0;'>
             SABPAM EXPORTS
         </h1>
-        <p style='color: #8B4513; font-size: 20px; font-weight: bold; font-family: sans-serif; letter-spacing: 5px; margin-top: 0;'>
-            HIGH FASHION COMPANY
+        <p style='color: #8B4513; font-size: 18px; font-weight: bold; letter-spacing: 4px; text-transform: uppercase; margin-top: 5px;'>
+            High Fashion Company
         </p>
-        <hr style='border: 1px solid #1E3A8A; width: 50%; margin: auto;'>
     </div>
     <br>
     """, unsafe_allow_html=True)
@@ -85,6 +97,7 @@ with st.form("entry_form", clear_on_submit=True):
             sheet.append_row(row, value_input_option='USER_ENTERED')
             st.success(f"Done! Total: {final_time}")
             st.balloons()
+
 
 
 
