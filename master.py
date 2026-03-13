@@ -13,36 +13,46 @@ try:
 except Exception as e:
     st.error(f"Sheet error: {e}")
     
-# --- 1. BACKGROUND & STYLE (Isse wo '0' aur folder icon hat jayega) ---
+# --- DESIGNER TITLE SECTION ---
 st.markdown("""
-    <style>
-    /* Poori screen ka background */
-    .stApp {
-        background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
-    }
-    /* Form ko ek safed box banane ke liye */
-    [data-testid="stForm"] {
-        background-color: #ffffff !important;
-        padding: 30px !important;
-        border-radius: 20px !important;
-        box-shadow: 0 15px 35px rgba(0,0,0,0.1) !important;
-        border: 1px solid #e0e0e0 !important;
-    }
-    </style>
-    """, unsafe_allow_html=True)
-
-# --- 2. DESIGNER TITLE (Ab koi error nahi aayega) ---
-st.markdown("""
-    <div style='text-align: center; padding: 20px; background-color: white; border-radius: 15px; border-bottom: 5px solid #1E3A8A;'>
-        <h1 style='color: #1E3A8A; font-family: "Georgia", serif; font-size: 42px; margin-bottom: 0;'>
+    <div style='text-align: center; background-color: #f0f2f6; padding: 20px; border-radius: 10px; border-bottom: 5px solid #1E3A8A;'>
+        <h1 style='color: #1E3A8A; font-family: "Arial Black", Gadget, sans-serif; margin-bottom: 0;'>
             SABPAM EXPORTS
         </h1>
-        <p style='color: #8B4513; font-size: 18px; font-weight: bold; letter-spacing: 4px; text-transform: uppercase; margin-top: 5px;'>
-            High Fashion Company
+        <p style='color: #555; font-size: 18px; font-weight: bold; letter-spacing: 2px;'>
+            HIGH FASHION COMPANY
         </p>
     </div>
     <br>
     """, unsafe_allow_html=True)
+
+# --- FORM FIELDS (As per your Book1.xlsx) ---
+with st.form("entry_form", clear_on_submit=True):
+    col_a, col_b = st.columns(2)
+    with col_a:
+        tailor_name = st.text_input("Tailor Name")
+        style_no = st.text_input("STYLE NO")
+        start_date = st.date_input("START DATE")
+        start_time = st.time_input("START TIME", value=datetime.time(9, 30))
+    
+    with col_b:
+        end_date = st.date_input("END DATE")
+        end_time = st.time_input("END TIME", value=datetime.time(18, 0))
+        alt_style = st.text_input("ALTERATION STYLE")
+
+    st.write("---")
+    st.write("**Productivity Details (Hours mein dalo)**")
+    
+    col_c, col_d = st.columns(2)
+    with col_c:
+        hold_h = st.number_input("HOLD TIME (Hours)", min_value=0.0, step=0.1)
+        ot_h = st.number_input("OVERTIME (Hours)", min_value=0.0, step=0.1)
+    
+    with col_d:
+        loss_h = st.number_input("LOSS TIME (Hours)", min_value=0.0, step=0.1)
+        alt_h = st.number_input("ALTERATION TIME (Hours)", min_value=0.0, step=0.1)
+
+    submitted = st.form_submit_button("SUBMIT DATA")
 with st.form("entry_form", clear_on_submit=True):
     tailor_name = st.text_input("Tailor Name")
     style_no = st.text_input("STYLE NO")
@@ -97,6 +107,7 @@ with st.form("entry_form", clear_on_submit=True):
             sheet.append_row(row, value_input_option='USER_ENTERED')
             st.success(f"Done! Total: {final_time}")
             st.balloons()
+
 
 
 
