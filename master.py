@@ -8,15 +8,17 @@ from google.oauth2.service_account import Credentials
 scope = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
 
 try:
+    # Streamlit Secrets se credentials uthana
     creds_dict = st.secrets["gcp_service_account"]
     creds = Credentials.from_service_account_info(creds_dict, scopes=scope)
     client = gspread.authorize(creds)
+    # Sheet ka naam check kar lena: SAB_Production_Data
     sheet = client.open("SAB_Production_Data").sheet1
 except Exception as e:
-    st.error(f"Sheet connect nahi hui: {e}")
+    st.error(f"Sheet connect nahi hui. Check karo Credentials aur Sheet Name. Error: {e}")
 
 # --- APP UI ---
-st.title("SABPAM - Smart Production Tracker")
+st.title("SABPAM - Live Production Tracker")
 
 with st.form("entry_form", clear_on_submit=True):
     tailor_name = st.text_input("TAILOR NAME")
@@ -45,22 +47,26 @@ with st.form("entry_form", clear_on_submit=True):
         if tailor_name and style_no:
             try:
                 # --- AUTO CALCULATION LOGIC ---
+                # 1. Start aur End ko combine karke full time nikalna
                 dt1 = datetime.datetime.combine(start_date, start_time)
                 dt2 = datetime.datetime.combine(end_date, end_time)
                 
-                # Kul minutes (End - Start)
-                gross_minutes = int((dt2 - dt1).total_seconds() / 60)
+                # 2. Kul minutes nikalna (End - Start)
+                duration = dt2 - dt1
+                gross_minutes = int(duration.total_seconds() / 60)
                 
-                # FINAL TOTAL formula: (Kaam ka waqt + Overtime) - (Rukawat ka waqt)
+                # 3. FINAL TOTAL FORMULA (SUM & MINUS)
+                # Kaam ka waqt + Overtime - (Rukawat ka waqt)
                 final_total = (gross_minutes + overtime) - (hold_time + loss_time)
                 
                 if final_total < 0:
                     final_total = 0
 
-                # Time format clean (e.g., 17:27)
+                # Time format ko saaf karna (17:27)
                 clean_start_time = start_time.strftime("%H:%M")
                 clean_end_time = end_time.strftime("%H:%M")
 
+                # Row taiyaar karna
                 row = [
                     style_no,
                     str(start_date),
@@ -73,15 +79,19 @@ with st.form("entry_form", clear_on_submit=True):
                     int(overtime),
                     alt_style,
                     int(alt_time),
-                    int(final_total)
+                    int(final_total) # Ye column apne aap calculate hokar jayega
                 ]
                 
+                # Sheet mein data bhejnat
+                # 'USER_ENTERED' zaroori hai taaki calculation/formula sahi chale
                 sheet.append_row(row, value_input_option='USER_ENTERED')
-                st.success(f"Bhai, Data save ho gaya! Final Total: {final_total} min ✅")
+                
+                st.success(f"Bhai, Data save ho gaya! Total Time: {final_total} minutes ✅")
                 st.balloons()
             except Exception as e:
-                st.error(f"Galti hui: {e}")
+                st.error(f"Data bhejne mein galti hui: {e}")
         else:
-            st.warning("Bhai, Tailor Name aur Style No likho!")
+            st.warning("Bhai, Tailor Name aur Style No likhna zaroori hai!")
+
 
 
