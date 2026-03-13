@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 import datetime
-import pytz # India ka time set karne ke liye
 import gspread
 from google.oauth2.service_account import Credentials
 
@@ -14,28 +13,22 @@ try:
     client = gspread.authorize(creds)
     sheet = client.open("SAB_Production_Data").sheet1
 except Exception as e:
-    st.error(f"Sheet connect nahi hui: {e}")
-
-# --- TIMEZONE SETUP ---
-IST = pytz.timezone('Asia/Kolkata')
+    st.error(f"Sheet connect nahi hui. Error: {e}")
 
 # --- APP UI ---
-st.title("SABPAM - Smart Production Tracker (IST)")
+st.title("SABPAM - Final Production Tracker")
 
 with st.form("entry_form", clear_on_submit=True):
     tailor_name = st.text_input("TAILOR NAME")
     style_no = st.text_input("STYLE NO")
     
     col_d1, col_d2 = st.columns(2)
-    # India ke aaj ki date aur time dikhane ke liye
-    now_ist = datetime.datetime.now(IST)
-    
     with col_d1:
-        start_date = st.date_input("START DATE", value=now_ist.date())
-        start_time = st.time_input("START TIME", value=now_ist.time())
+        start_date = st.date_input("START DATE")
+        start_time = st.time_input("START TIME")
     with col_d2:
-        end_date = st.date_input("END DATE", value=now_ist.date())
-        end_time = st.time_input("END TIME", value=now_ist.time())
+        end_date = st.date_input("END DATE")
+        end_time = st.time_input("END TIME")
     
     col_e1, col_e2 = st.columns(2)
     with col_e1:
@@ -51,48 +44,36 @@ with st.form("entry_form", clear_on_submit=True):
     if submitted:
         if tailor_name and style_no:
             try:
-                # --- CALCULATION LOGIC ---
-                # Hum input kiye gaye time ko IST mein convert kar rahe hain
-                dt1 = datetime.datetime.combine(start_date, start_time)
-                dt2 = datetime.datetime.combine(end_date, end_time)
+                # --- SIMPLE CALCULATION (No Timezone Jhanjhat) ---
+                # Hum manually ghante aur minute nikal rahe hain
+                start_minutes = start_time.hour * 60 + start_time.minute
+                end_minutes = end_time.hour * 60 + end_time.minute
                 
-                # Kul minutes (End - Start)
-                duration = dt2 - dt1
-                gross_minutes = int(duration.total_seconds() / 60)
+                # Agar kaam agle din khatam hua toh (Date difference)
+                date_diff = (end_date - start_date).days
+                total_diff_minutes = (end_minutes - start_minutes) + (date_diff * 1440)
                 
-                # FINAL FORMULA: (Duty Time + Overtime) - (Hold + Loss)
-                # Office ka hisaab: Overtime judega, Hold aur Loss ghatega
-                final_total = (gross_minutes + overtime) - (hold_time + loss_time)
+                # FINAL FORMULA: (Duty + Overtime) - (Hold + Loss)
+                final_total = (total_diff_minutes + overtime) - (hold_time + loss_time)
                 
-                if final_total < 0:
-                    final_total = 0
+                if final_total < 0: final_total = 0
 
-                # Formatted Time for Sheet (HH:MM)
-                s_time_str = start_time.strftime("%H:%M")
-                e_time_str = end_time.strftime("%H:%M")
+                # Formatted Time (Jo dikh raha hai wahi jayega)
+                s_t = start_time.strftime("%H:%M")
+                e_t = end_time.strftime("%H:%M")
 
                 row = [
-                    style_no,
-                    str(start_date),
-                    s_time_str,
-                    tailor_name,
-                    str(end_date),
-                    e_time_str,
-                    int(hold_time),
-                    int(loss_time),
-                    int(overtime),
-                    alt_style,
-                    int(alt_time),
-                    int(final_total)
+                    style_no, str(start_date), s_t, tailor_name,
+                    str(end_date), e_t, int(hold_time), int(loss_time),
+                    int(overtime), alt_style, int(alt_time), int(final_total)
                 ]
                 
                 sheet.append_row(row, value_input_option='USER_ENTERED')
-                st.success(f"Bhai, Data save ho gaya! Final Total: {final_total} min ✅")
+                st.success(f"Bhai, Data save ho gaya! Total: {final_total} min ✅")
                 st.balloons()
             except Exception as e:
                 st.error(f"Error: {e}")
         else:
             st.warning("Bhai, Name aur Style bharo!")
-
 
 
