@@ -53,7 +53,6 @@ with st.form("entry_form", clear_on_submit=True):
         alt_h = st.number_input("ALTERATION TIME (Hours)", min_value=0.0, step=0.1)
 
     submitted = st.form_submit_button("SUBMIT DATA")
-with st.form("entry_form", clear_on_submit=True):
     tailor_name = st.text_input("Tailor Name")
     style_no = st.text_input("STYLE NO")
     
@@ -107,6 +106,7 @@ with st.form("entry_form", clear_on_submit=True):
             sheet.append_row(row, value_input_option='USER_ENTERED')
             st.success(f"Done! Total: {final_time}")
             st.balloons()
+
 
 
 
