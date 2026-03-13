@@ -65,6 +65,7 @@ with st.form("entry_form", clear_on_submit=True):
 
                 # 4. Sheet mein Data bhejnat (Wahi columns jo aapne maange)
                 row = [
+                    tailor_name,
                     style_no,
                     str(start_date),
                     start_time.strftime("%H:%M"),
@@ -85,4 +86,5 @@ with st.form("entry_form", clear_on_submit=True):
                 st.error(f"Galti hui: {e}")
         else:
             st.warning("Bhai, Style No bharo pehle!")
+
 
