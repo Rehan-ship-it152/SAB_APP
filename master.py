@@ -44,40 +44,44 @@ with st.form("entry_form", clear_on_submit=True):
     if submitted:
         if tailor_name and style_no:
             try:
-                # --- CALCULATION AND FORMATTING ---
+                # --- AUTO CALCULATION LOGIC ---
                 dt1 = datetime.datetime.combine(start_date, start_time)
                 dt2 = datetime.datetime.combine(end_date, end_time)
                 
-                duration = dt2 - dt1
-                total_minutes = int(duration.total_seconds() / 60)
+                # Kul minutes (End - Start)
+                gross_minutes = int((dt2 - dt1).total_seconds() / 60)
                 
-                if total_minutes < 0:
-                    total_minutes = 0
+                # FINAL TOTAL formula: (Kaam ka waqt + Overtime) - (Rukawat ka waqt)
+                final_total = (gross_minutes + overtime) - (hold_time + loss_time)
+                
+                if final_total < 0:
+                    final_total = 0
 
-                # Time ko sundar banane ke liye (Sirf 17:27 dikhega)
+                # Time format clean (e.g., 17:27)
                 clean_start_time = start_time.strftime("%H:%M")
                 clean_end_time = end_time.strftime("%H:%M")
 
                 row = [
                     style_no,
                     str(start_date),
-                    clean_start_time, # Ab time saaf aayega
+                    clean_start_time,
                     tailor_name,
                     str(end_date),
-                    clean_end_time,   # Ab time saaf aayega
+                    clean_end_time,
                     int(hold_time),
                     int(loss_time),
                     int(overtime),
                     alt_style,
                     int(alt_time),
-                    int(total_minutes) # Ye pakka Number ban kar jayega
+                    int(final_total)
                 ]
                 
-                sheet.append_row(row)
-                st.success(f"Bhai, Data save ho gaya! Total Time: {total_minutes} min ✅")
+                sheet.append_row(row, value_input_option='USER_ENTERED')
+                st.success(f"Bhai, Data save ho gaya! Final Total: {final_total} min ✅")
                 st.balloons()
             except Exception as e:
-                st.error(f"Error: {e}")
+                st.error(f"Galti hui: {e}")
         else:
-            st.warning("Bhai, Tailor Name aur Style No bharo!")
+            st.warning("Bhai, Tailor Name aur Style No likho!")
+
 
