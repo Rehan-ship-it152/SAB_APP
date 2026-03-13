@@ -12,24 +12,6 @@ try:
     sheet = client.open("SAB_Production_Data").sheet1
 except Exception as e:
     st.error(f"Sheet error: {e}")
-    # --- 1. BACKGROUND & STYLE (Ye sabse pehle aayega) ---
-st.markdown("""
-    <style>
-    .stApp {
-        background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
-    }
-    [data-testid="stForm"] {
-        background-color: #ffffff !important;
-        padding: 30px !important;
-        border-radius: 20px !important;
-        box-shadow: 0 15px 35px rgba(0,0,0,0.1) !important;
-        border: 1px solid #e0e0e0 !important;
-    }
-    h1 {
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-    }
-    </style>
-    """, unsafe_allow_html=True)
 
 # --- 2. LOGO SECTION ---
 # Agar logo hai toh link dalo, nahi toh ye line placeholder dikhayegi
@@ -121,6 +103,7 @@ with st.form("entry_form", clear_on_submit=True):
             sheet.append_row(row, value_input_option='USER_ENTERED')
             st.success(f"Done! Total: {final_time}")
             st.balloons()
+
 
 
 
