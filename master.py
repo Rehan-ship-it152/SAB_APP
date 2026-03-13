@@ -13,13 +13,12 @@ try:
     client = gspread.authorize(creds)
     sheet = client.open("SAB_Production_Data").sheet1
 except Exception as e:
-    st.error(f"Sheet connect nahi hui. Error: {e}")
+    st.error(f"Sheet connect nahi hui: {e}")
 
 # --- APP UI ---
 st.title("SABPAM - Production Tracker")
 
 with st.form("entry_form", clear_on_submit=True):
-    # Form Fields as per your list
     tailor_name = st.text_input("Tailor Name")
     style_no = st.text_input("STYLE NO")
     
@@ -46,26 +45,27 @@ with st.form("entry_form", clear_on_submit=True):
     if submitted:
         if tailor_name and style_no:
             try:
-                # --- ASLI CALCULATION (MINUTES MEIN) ---
-                # Office Time Calculation: 9:30 se 18:00 = 510 minutes
-                # Par hum flexible rakhte hain agar aap manual time badlo
-                dt1 = datetime.datetime.combine(start_date, start_time)
-                dt2 = datetime.datetime.combine(end_date, end_time)
+                # --- FIXED MATH (No Seconds, No Errors) ---
+                # Manual Minutes nikalna taaki 1 min ka fark na aaye
+                start_total_min = start_time.hour * 60 + start_time.minute
+                end_total_min = end_time.hour * 60 + end_time.minute
                 
-                # Kul minutes (End - Start)
-                gross_minutes = int((dt2 - dt1).total_seconds() / 60)
+                # Agar date badal jaye (Night shift case)
+                date_diff_days = (end_date - start_date).days
+                gross_minutes = (end_total_min - start_total_min) + (date_diff_days * 1440)
                 
-                # Formula: (Gross Time + Overtime) - (Hold + Loss + Alteration)
+                # Asli Calculation
+                # (End-Start + Overtime) - (Hold + Loss + Alteration)
                 final_minutes = (gross_minutes + overtime) - (hold_time + loss_time + alt_time)
                 
                 if final_minutes < 0: final_minutes = 0
 
-                # Minutes ko HH:MM mein badalna
+                # Hours:Minutes format mein badalna
                 h = final_minutes // 60
                 m = final_minutes % 60
                 final_formatted_time = f"{h}:{m:02d}"
 
-                # Data for Sheet (Exactly as your list)
+                # Row for Sheet
                 row = [
                     tailor_name,
                     style_no,
@@ -78,17 +78,19 @@ with st.form("entry_form", clear_on_submit=True):
                     int(loss_time),
                     alt_style,
                     int(alt_time),
-                    final_formatted_time  # Ye raha final sum/minus wala result
+                    final_formatted_time
                 ]
                 
                 sheet.append_row(row, value_input_option='USER_ENTERED')
                 
-                st.success(f"Data Save! Total Work Time: {final_formatted_time} ✅")
+                st.success(f"Bhai, ab calculation ek dum sahi hai! Total: {final_formatted_time} ✅")
                 st.balloons()
             except Exception as e:
                 st.error(f"Galti hui: {e}")
         else:
-            st.warning("Bhai, Name aur Style No likhna zaroori hai!")
+            st.warning("Bhai, Tailor Name aur Style No bharo!")
+       
 
          
+
 
