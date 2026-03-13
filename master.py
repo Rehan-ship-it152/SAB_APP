@@ -12,25 +12,7 @@ try:
     sheet = client.open("SAB_Production_Data").sheet1
 except Exception as e:
     st.error(f"Sheet error: {e}")
-
-# --- 2. LOGO SECTION ---
-# Agar logo hai toh link dalo, nahi toh ye line placeholder dikhayegi
-st.image("https://via.placeholder.com/800x150.png?text=SABPAM+EXPORTS+LOGO", use_container_width=True)
-
-# --- 3. DESIGNER TITLE SECTION ---
-st.markdown("""
-    <div style='text-align: center; padding: 10px;'>
-        <h1 style='color: #1E3A8A; font-family: "Georgia", serif; font-size: 50px; margin-bottom: 0;'>
-            SABPAM EXPORTS
-        </h1>
-        <p style='color: #8B4513; font-size: 22px; font-weight: bold; letter-spacing: 6px; text-transform: uppercase; margin-top: 0;'>
-            High Fashion Company
-        </p>
-        <div style='width: 150px; height: 4px; background: #1E3A8A; margin: 10px auto;'></div>
-    </div>
-    <br>
-    """, unsafe_allow_html=True)
-
+    
 # --- LOGO SECTION ---
 # Agar aapke paas logo ka link hai toh niche "LINK_YAHAN_DALO" ki jagah daal dein
 # Agar nahi hai, toh is line ke shuru mein # laga kar ise band kar dein
@@ -103,6 +85,7 @@ with st.form("entry_form", clear_on_submit=True):
             sheet.append_row(row, value_input_option='USER_ENTERED')
             st.success(f"Done! Total: {final_time}")
             st.balloons()
+
 
 
 
