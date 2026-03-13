@@ -1,4 +1,3 @@
-
 import streamlit as st
 import pandas as pd
 import datetime
@@ -17,60 +16,73 @@ except Exception as e:
     st.error(f"Sheet connect nahi hui: {e}")
 
 # --- APP UI ---
-st.title("SABPAM - Final Production Tracker")
-st.subheader("Office Duty: 8 Hours 30 Minutes")
+st.title("SABPAM Production Tracker")
 
 with st.form("entry_form", clear_on_submit=True):
-    tailor_name = st.text_input("TAILOR NAME")
+    # Aapke bataye huye saare 10 columns yahan hain
     style_no = st.text_input("STYLE NO")
     
-    st.write("---")
-    st.write("Input (Minutes mein dalo, code ghante bana dega):")
     col1, col2 = st.columns(2)
     with col1:
-        ot_min = st.number_input("OVERTIME (Min)", min_value=0)
-        hold_min = st.number_input("HOLD TIME (Min)", min_value=0)
+        start_date = st.date_input("START DATE", value=datetime.date.today())
+        start_time = st.time_input("START TIME", value=datetime.time(9, 30)) # Default 9:30
     with col2:
-        loss_min = st.number_input("LOSS TIME (Min)", min_value=0)
-        alt_time_min = st.number_input("ALTERATION TIME (Min)", min_value=0)
+        end_date = st.date_input("END DATE", value=datetime.date.today())
+        end_time = st.time_input("END TIME", value=datetime.time(18, 0)) # Default 18:00
+
+    st.write("---")
+    col3, col4 = st.columns(2)
+    with col3:
+        hold_time = st.number_input("HOLD TIME (Min)", min_value=0)
+        overtime = st.number_input("OVERTIME (Min)", min_value=0)
+        loss_time = st.number_input("LOSS TIME (Min)", min_value=0)
+    with col4:
+        alt_style = st.text_input("ALTERATION STYLE")
+        alt_time = st.number_input("ALTERATION TIME (Min)", min_value=0)
 
     submitted = st.form_submit_button("SUBMIT DATA")
 
     if submitted:
-        if tailor_name and style_no:
+        if style_no:
             try:
-                # 1. Base Office Time (8:30 = 510 Minutes)
-                base_minutes = 510 
+                # 1. Start aur End time se minutes nikalna
+                dt1 = datetime.datetime.combine(start_date, start_time)
+                dt2 = datetime.datetime.combine(end_date, end_time)
                 
-                # 2. Final Minutes Calculation
-                # (8:30 + Overtime) - (Hold + Loss + Alteration)
-                total_min = (base_minutes + ot_min) - (hold_min + loss_min + alt_time_min)
+                # Kul minutes (End - Start)
+                gross_minutes = int((dt2 - dt1).total_seconds() / 60)
                 
-                if total_min < 0: total_min = 0
+                # 2. FINAL CALCULATION (SUM & MINUS)
+                # Formula: (Asli Time + Overtime) - (Hold + Loss + Alteration)
+                total_work_min = (gross_minutes + overtime) - (hold_time + loss_time + alt_time)
+                
+                if total_work_min < 0: total_work_min = 0
 
-                # 3. Minutes ko HH:MM Format mein badalna
-                hours = total_min // 60
-                minutes = total_min % 60
-                final_output = f"{hours}:{minutes:02d}"
+                # 3. Minutes ko Hours:Minutes mein badalna (e.g., 8:30)
+                h = total_work_min // 60
+                m = total_work_min % 60
+                final_time_display = f"{h}:{m:02d}"
 
-                # 4. Sheet Data
+                # 4. Sheet mein Data bhejnat (Wahi columns jo aapne maange)
                 row = [
                     style_no,
-                    datetime.date.today().strftime("%Y-%m-%d"),
-                    tailor_name,
-                    hold_min,
-                    loss_min,
-                    ot_min,
-                    alt_time_min,
-                    final_output # Sheet mein "8:30" dikhega
+                    str(start_date),
+                    start_time.strftime("%H:%M"),
+                    str(end_date),
+                    end_time.strftime("%H:%M"),
+                    hold_time,
+                    overtime,
+                    loss_time,
+                    alt_style,
+                    alt_time,
+                    final_time_display # Final Total Calculation
                 ]
                 
                 sheet.append_row(row, value_input_option='USER_ENTERED')
-                
-                st.success(f"Data Save! Total Work Done: {final_output} (Hours:Minutes) ✅")
+                st.success(f"Data save ho gaya! Total Calculation: {final_time_display} ✅")
                 st.balloons()
             except Exception as e:
                 st.error(f"Galti hui: {e}")
         else:
-            st.warning("Bhai, Tailor Name aur Style No bharo!")
+            st.warning("Bhai, Style No bharo pehle!")
 
