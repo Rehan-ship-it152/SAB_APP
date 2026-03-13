@@ -13,10 +13,24 @@ try:
 except Exception as e:
     st.error(f"Sheet error: {e}")
 
-st.markdown("<h1 style='text-align: center; color: #1E3A8A; font-family: serif;'>SABPAM EXPORTS</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; font-size: 22px; color: #555; font-style: italic;'>High Fashion Company</p>", unsafe_allow_html=True)
-st.markdown("<hr style='border: 2px solid #1E3A8A;'>", unsafe_allow_html=True)
+# --- LOGO SECTION ---
+# Agar aapke paas logo ka link hai toh niche "LINK_YAHAN_DALO" ki jagah daal dein
+# Agar nahi hai, toh is line ke shuru mein # laga kar ise band kar dein
+st.image("https://via.placeholder.com/800x150.png?text=SABPAM+EXPORTS+LOGO", use_container_width=True)
 
+# --- DESIGNER TITLE SECTION ---
+st.markdown("""
+    <div style='text-align: center; background-color: #ffffff; padding: 10px; border-radius: 5px;'>
+        <h1 style='color: #1E3A8A; font-family: "Times New Roman", Times, serif; font-size: 45px; margin-bottom: 0; letter-spacing: 2px;'>
+            SABPAM EXPORTS
+        </h1>
+        <p style='color: #8B4513; font-size: 20px; font-weight: bold; font-family: sans-serif; letter-spacing: 5px; margin-top: 0;'>
+            HIGH FASHION COMPANY
+        </p>
+        <hr style='border: 1px solid #1E3A8A; width: 50%; margin: auto;'>
+    </div>
+    <br>
+    """, unsafe_allow_html=True)
 with st.form("entry_form", clear_on_submit=True):
     tailor_name = st.text_input("Tailor Name")
     style_no = st.text_input("STYLE NO")
@@ -71,6 +85,7 @@ with st.form("entry_form", clear_on_submit=True):
             sheet.append_row(row, value_input_option='USER_ENTERED')
             st.success(f"Done! Total: {final_time}")
             st.balloons()
+
 
 
 
