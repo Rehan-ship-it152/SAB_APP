@@ -13,7 +13,9 @@ try:
 except Exception as e:
     st.error(f"Sheet error: {e}")
 
-st.title("SABPAM - Production (Hours Mode)")
+st.markdown("<h1 style='text-align: center; color: #1E3A8A; font-family: serif;'>SABPAM EXPORTS</h1>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; font-size: 22px; color: #555; font-style: italic;'>High Fashion Company</p>", unsafe_allow_html=True)
+st.markdown("<hr style='border: 2px solid #1E3A8A;'>", unsafe_allow_html=True)
 
 with st.form("entry_form", clear_on_submit=True):
     tailor_name = st.text_input("Tailor Name")
@@ -69,6 +71,7 @@ with st.form("entry_form", clear_on_submit=True):
             sheet.append_row(row, value_input_option='USER_ENTERED')
             st.success(f"Done! Total: {final_time}")
             st.balloons()
+
 
 
 
