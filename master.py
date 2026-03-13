@@ -1,4 +1,4 @@
-import streamlit as st
+ import streamlit as st
 import pandas as pd
 import datetime
 import gspread
@@ -25,10 +25,13 @@ with st.form("entry_form", clear_on_submit=True):
     col_d1, col_d2 = st.columns(2)
     with col_d1:
         start_date = st.date_input("START DATE", value=datetime.date.today())
-        start_time = st.time_input("START TIME", value=datetime.time(9, 30))
+        # Manual time selection
+        s_hour = st.number_input("Start Hour (24h format)", min_value=0, max_value=23, value=9)
+        s_min = st.number_input("Start Minute", min_value=0, max_value=59, value=30)
     with col_d2:
         end_date = st.date_input("END DATE", value=datetime.date.today())
-        end_time = st.time_input("END TIME", value=datetime.time(18, 0))
+        e_hour = st.number_input("End Hour (24h format)", min_value=0, max_value=23, value=18)
+        e_min = st.number_input("End Minute", min_value=0, max_value=59, value=0)
     
     col_e1, col_e2 = st.columns(2)
     with col_e1:
@@ -45,34 +48,33 @@ with st.form("entry_form", clear_on_submit=True):
     if submitted:
         if tailor_name and style_no:
             try:
-                # --- FIXED MATH (No Seconds, No Errors) ---
-                # Manual Minutes nikalna taaki 1 min ka fark na aaye
-                start_total_min = start_time.hour * 60 + start_time.minute
-                end_total_min = end_time.hour * 60 + end_time.minute
+                # --- ZERO ERROR CALCULATION ---
+                # Seedha minutes mein convert kar rahe hain (No seconds involved)
+                start_total_min = (s_hour * 60) + s_min
+                end_total_min = (e_hour * 60) + e_min
                 
-                # Agar date badal jaye (Night shift case)
-                date_diff_days = (end_date - start_date).days
-                gross_minutes = (end_total_min - start_total_min) + (date_diff_days * 1440)
+                # Date ka fark agar ho
+                day_diff = (end_date - start_date).days
+                gross_minutes = (end_total_min - start_total_min) + (day_diff * 1440)
                 
-                # Asli Calculation
-                # (End-Start + Overtime) - (Hold + Loss + Alteration)
+                # Formula apply karna: (Base + OT) - (Hold + Loss + Alt)
                 final_minutes = (gross_minutes + overtime) - (hold_time + loss_time + alt_time)
                 
                 if final_minutes < 0: final_minutes = 0
 
-                # Hours:Minutes format mein badalna
-                h = final_minutes // 60
-                m = final_minutes % 60
-                final_formatted_time = f"{h}:{m:02d}"
+                # HH:MM format taiyaar karna
+                final_h = final_minutes // 60
+                final_m = final_minutes % 60
+                final_formatted_time = f"{final_h}:{final_m:02d}"
 
-                # Row for Sheet
+                # Sheet entries
                 row = [
                     tailor_name,
                     style_no,
                     str(start_date),
-                    start_time.strftime("%H:%M"),
+                    f"{s_hour:02d}:{s_min:02d}",
                     str(end_date),
-                    end_time.strftime("%H:%M"),
+                    f"{e_hour:02d}:{e_min:02d}",
                     int(hold_time),
                     int(overtime),
                     int(loss_time),
@@ -83,14 +85,11 @@ with st.form("entry_form", clear_on_submit=True):
                 
                 sheet.append_row(row, value_input_option='USER_ENTERED')
                 
-                st.success(f"Bhai, ab calculation ek dum sahi hai! Total: {final_formatted_time} ✅")
+                st.success(f"Data Save! Total: {final_formatted_time} ✅")
                 st.balloons()
             except Exception as e:
-                st.error(f"Galti hui: {e}")
+                st.error(f"Error: {e}")
         else:
-            st.warning("Bhai, Tailor Name aur Style No bharo!")
-       
-
-         
+            st.warning("Bhai, Tailor Name aur Style No dalo!")
 
 
